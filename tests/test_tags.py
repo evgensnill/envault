@@ -73,3 +73,14 @@ def test_all_tags(tmp_path):
 def test_get_tags_empty(tmp_path):
     v = _make_vault(tmp_path)
     assert get_tags(v, "API_KEY") == []
+
+
+def test_add_multiple_tags_to_same_key(tmp_path):
+    """A key can hold multiple distinct tags."""
+    v = _make_vault(tmp_path)
+    add_tag(v, "API_KEY", "production")
+    add_tag(v, "API_KEY", "sensitive")
+    tags = get_tags(v, "API_KEY")
+    assert "production" in tags
+    assert "sensitive" in tags
+    assert len(tags) == 2
