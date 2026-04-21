@@ -63,3 +63,15 @@ def get_history(
 def clear_history(vault_path: str) -> None:
     """Remove all changelog entries."""
     _save(vault_path, [])
+
+
+def get_last_change(
+    vault_path: str,
+    key: str,
+) -> Optional[Dict[str, Any]]:
+    """Return the most recent changelog entry for the given key, or None if not found."""
+    entries = _load(vault_path)
+    for entry in reversed(entries):
+        if entry["key"] == key:
+            return entry
+    return None
