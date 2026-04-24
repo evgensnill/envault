@@ -21,7 +21,16 @@ def check_reminders(
     max_age_days: int = 90,
     keys: Optional[List[str]] = None,
 ) -> List[ReminderEntry]:
-    """Return reminder entries for keys that are due or overdue."""
+    """Return reminder entries for keys that are due or overdue.
+
+    Args:
+        vault: The vault instance to inspect.
+        max_age_days: Number of days after which a key is considered overdue.
+        keys: Specific keys to check; defaults to all keys in the vault.
+
+    Returns:
+        A list of :class:`ReminderEntry` objects, one per key checked.
+    """
     target_keys = keys if keys is not None else vault.list_keys()
     entries: List[ReminderEntry] = []
     now = datetime.utcnow()
@@ -55,3 +64,23 @@ def check_reminders(
 def overdue_keys(vault: Vault, max_age_days: int = 90) -> List[str]:
     """Return list of key names that are overdue for rotation."""
     return [e.key for e in check_reminders(vault, max_age_days) if e.overdue]
+
+
+def upcoming_keys(vault: Vault, max_age_days: int = 90, within_days: int = 14) -> List[str]:
+    """Return list of key names due for rotation within *within_days* days.
+
+    Keys that are already overdue are excluded; use :func:`overdue_keys` for those.
+
+    Args:
+        vault: The vault instance to inspect.
+        max_age_days: Number of days after which a key is considered overdue.
+        within_days: Window in days to look ahead for upcoming rotations.
+
+    Returns:
+        Key names whose rotation is due within the specified window.
+    """
+    return [
+        e.key
+        for e in check_reminders(vault, max_age_days)
+        if not e.overdue and e.due_in <= within_days
+    ]
