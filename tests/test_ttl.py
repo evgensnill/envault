@@ -32,6 +32,15 @@ def test_get_ttl_missing_key_returns_none(vault_path):
     assert ttl_mod.get_ttl(vault_path, "MISSING") is None
 
 
+def test_set_ttl_overwrites_existing(vault_path):
+    """Re-setting a TTL for the same key should update the record."""
+    ttl_mod.set_ttl(vault_path, "API_KEY", 3600)
+    ttl_mod.set_ttl(vault_path, "API_KEY", 7200)
+    meta = ttl_mod.get_ttl(vault_path, "API_KEY")
+    assert meta is not None
+    assert meta["ttl_seconds"] == 7200
+
+
 # ---------------------------------------------------------------------------
 # remove
 # ---------------------------------------------------------------------------
@@ -85,3 +94,9 @@ def test_list_ttls_returns_all_records(vault_path):
     ttl_mod.set_ttl(vault_path, "B", 200)
     records = ttl_mod.list_ttls(vault_path)
     assert set(records.keys()) == {"A", "B"}
+
+
+def test_list_ttls_empty_vault(vault_path):
+    """list_ttls should return an empty dict when no TTLs have been set."""
+    records = ttl_mod.list_ttls(vault_path)
+    assert records == {}
