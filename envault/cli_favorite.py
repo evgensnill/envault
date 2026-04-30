@@ -63,3 +63,14 @@ def clear_cmd(vault_path: str) -> None:
     """Remove all favorites."""
     count = clear_favorites(vault_path)
     click.echo(f"Cleared {count} favorite(s).")
+
+
+@favorite.command("check")
+@click.argument("vault_path")
+@click.argument("key")
+def check_cmd(vault_path: str, key: str) -> None:
+    """Check whether KEY is marked as a favorite."""
+    if is_favorite(vault_path, key):
+        click.echo(f"'{key}' is a favorite.")
+    else:
+        click.echo(f"'{key}' is not a favorite.")
